@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "My Journey with Java Spring Boot and my Warcraft ToDoList"
+title: "My Journey with Spring Boot and my Warcraft ToDoList"
 ---
 
 ### About myself
-Hello and welcome to my personal blog! I'm Martin, 31 years old, and here I aim to share my experiences with Java Spring Boot Security and OAuth2. Alongside insights into my achievements and challenges, you'll also get to learn about my recent completion of a 10-month Java Developer course at [everyone codes](https://everyonecodes.io/).
+Hello and welcome to my personal blog! I'm Martin, 31 years old, and here I aim to share my experiences with Spring Boot Security and OAuth2. Alongside insights into my achievements and challenges, you'll also get to learn about my recent completion of a 10-month Java Developer course at [everyone codes](https://everyonecodes.io/).
 
 ### Requirements for My Project "WoWToDoList" with API Integration
 
@@ -15,13 +15,11 @@ Hello and welcome to my personal blog! I'm Martin, 31 years old, and here I aim 
 - Establish a one-to-many relationship between characters and their respective ToDoLists using annotations.
 
 
-### The Problem i had with OAuth2 and generating the token
+### The Problem I had with OAuth2 and generating the token
 
-I began by creating my data classes, `Character` and `Task`, along with their respective repositories managed by Hibernate. I also established the necessary Service and Controller layers for these classes.
+I began by creating my data classes, `Character` and `Task`, along with their respective repositories managed by Hibernate. I also established the necessary Service and Controller layers for these classes and added the Spring Security dependency into my pom.xml.
 
-The next step in my journey involved extensive research to integrate OAuth2. After careful consideration, I opted for the Spring Boot Security dependency, as it seemed most fitting for my project, which was already built on Spring Boot.
-
-To kick off the OAuth2 integration, I added the required data for the Code flow into my `application.properties` file. This laid the groundwork for later generating a token.
+To start the OAuth2 integration, I added the required data such as clientID, SecretID, redirecturi, issueruri, etc. to my application.properties file. This laid the foundation for the later generation of a token.
 
 The issue I quickly identified was that I was using the wrong method from Spring Security to create a token. I had implemented a method similar to the following pseudocode:
 
@@ -30,7 +28,7 @@ public Map<String, Object> authentication(Authentication authentication) {
     return authentication.getPrincipal().getAttributes();
 }
 ```
-In the provided code, after a successful Codeflow, I only received user information and not a token that could be used for subsequent requests by adding it to my header as Bearer. Initially, I thought I needed to decode the received information using JWT, but that turned out not to be the case. I later discovered the correct solution.
+In the provided code, after a successful run, I only received user information and not a token that could be used for subsequent requests by adding it to my header as Bearer. Initially, I thought I needed to decode the received information using JWT, but that turned out not to be the case. I later discovered the correct solution.
 
 
 ### The Solution
@@ -56,8 +54,7 @@ SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 **Generating the Token**
 
-This method is crucial for obtaining the access token from the authentication object, facilitating access to protected resources on behalf of the authenticated user. In OAuth2 authentication scenarios, commonly employed in web applications, this function plays a pivotal role. Below is the corresponding Java code:
-
+This method is crucial for obtaining the access token from the authentication object, facilitating access to protected resources on behalf of the authenticated user. 
 ```java
 protected String getAccessToken(Authentication authentication) {
 
@@ -69,9 +66,9 @@ protected String getAccessToken(Authentication authentication) {
 }
 ````
 
-### Retrieving and Processing Data from Blizzard API
+### Retrieving and Processing Data from the Blizzard API
 
-After successfully obtaining the access token, I could finally send API requests to the Blizzard API. Upon inserting the required headers and parameters and receiving the initial data, I utilized the Jackson Library and ObjectMapper to extract the name and server of the character. Subsequently, I performed a duplicate check using ORM (Object-Relational Mapping) before rendering the extracted character information in the frontend with Thymeleaf. Additionally, using JavaScript, I stored the character in the database.
+After successfully obtaining the access token, I could finally send API requests to the Blizzard API. Upon inserting the required headers and parameters and receiving the initial data, I used the Jackson Library and ObjectMapper to extract the name and server of the character. Then, I performed a duplicate check using Hibernate before rendering the extracted character information in the frontend with Thymeleaf. Additionally, using JavaScript to fetch the data and send it to my backend where I stored the character in the database.
 
 This process involved the following steps:
 
@@ -92,6 +89,6 @@ This process involved the following steps:
    - Integrated Thymeleaf to render the extracted character information in the frontend.
 
 5. **Database Storage with JavaScript:**
-   - Used JavaScript to store the character details in the database.
+   - Used JavaScript to fetch and send the information to my backend to store the character details in the database.
 
 These steps collectively allowed for the seamless integration of data retrieval, processing, and presentation within the web application, with the added benefit of preventing duplicate entries in the frontend based on a logical check.
