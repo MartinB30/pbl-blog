@@ -35,7 +35,7 @@ In the provided code, after a successful Codeflow, I only received user informat
 
 ### The Solution
 
-##### Security Configuration for OAuth2 Integration
+#### Security Configuration for OAuth2 Integration
 
 This snippet represents a security configuration using Spring Security to integrate OAuth2. It disables CSRF protection, configures OAuth2 login, and sets the default success URL to "/character/profile". The authorization endpoint is specified with a base URI of "/oauth2/authorization".
 
@@ -53,7 +53,7 @@ protected void configure(HttpSecurity http) throws Exception {
 ````
 
 
-##### Generating the Token
+#### Generating the Token
 
 This method is crucial for obtaining the access token from the authentication object, facilitating access to protected resources on behalf of the authenticated user. In OAuth2 authentication scenarios, commonly employed in web applications, this function plays a pivotal role. Below is the corresponding Java code:
 
