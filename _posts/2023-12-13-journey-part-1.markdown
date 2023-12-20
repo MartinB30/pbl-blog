@@ -88,7 +88,7 @@ This process involved the following steps:
 4. **Frontend Display with Thymeleaf:**
    - Integrated Thymeleaf to render the extracted character information in the frontend.
 
-5. **Database Storage with JavaScript:**
+5. **Database Storage with JavaScript fetch to backend:**
    - Used JavaScript to fetch and send the information to my backend to store the character details in the database.
 
 These steps collectively allowed for the seamless integration of data retrieval, processing, and presentation within the web application, with the added benefit of preventing duplicate entries in the frontend based on a logical check.
