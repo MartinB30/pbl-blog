@@ -4,9 +4,93 @@ title: "My Journey with Java Spring Boot and my Warcraft ToDoList"
 ---
 
 ### About myself
-Hello and welcome to my personal blog and first post! My name is Martin Bollin, and I am 31 years old. In this blog, I would like to share my experiences with Java Spring Boot with you. But that's not all - you will also get to know about my achievements, failures, and my past sprint reviews that I had with my mentor from [everyone codes](https://everyonecodes.io/).
+Hello and welcome to my personal blog! I'm Martin, 31 years old, and here I aim to share my experiences with Java Spring Boot Security and OAuth2. Alongside insights into my achievements and challenges, you'll also get to learn about my recent completion of a 10-month Java Developer course at [everyone codes](https://everyonecodes.io/).
 
-### My Project "Warcraft ToDoList with API Integration"
-I initially set out to create a ToDoList, but that seemed a bit too basic for me. I was eager to work with an API as learning becomes more effective through hands-on experience. Therefore, I made the decision to develop a ToDoList specifically for Warcraft Classic. In essence, the project involves retrieving my characters through the Blizzard API. Using the API, character details will be stored in the database, and each character will have an attached individual ToDoList with CRUD features, linked via a onetomany annotation. Sounds simple right? Little spoiler.. it wasn't.
+### Requirements for My Project "WoWToDoList" with API Integration
 
-Stay tuned for more!
+- Learn about OAuth2, including the Code flow and token generation.
+- Successfully implement API endpoint connection to retrieve my characters' details from the Blizzard API.
+- Develop an efficient database storage system for character details obtained through the API.
+- Implement a ToDoList feature for each character with CRUD functionalities.
+- Establish a one-to-many relationship between characters and their respective ToDoLists using annotations.
+
+
+### The Problem i had with OAuth2 and generating the token
+
+I began by creating my data classes, `Character` and `Task`, along with their respective repositories managed by Hibernate. I also established the necessary Service and Controller layers for these classes.
+
+The next step in my journey involved extensive research to integrate OAuth2. After careful consideration, I opted for the Spring Boot Security dependency, as it seemed most fitting for my project, which was already built on Spring Boot.
+
+To kick off the OAuth2 integration, I added the required data for the Code flow into my `application.properties` file. This laid the groundwork for later generating a token.
+
+The issue I quickly identified was that I was using the wrong method from Spring Security to create a token. I had implemented a method similar to the following pseudocode:
+
+```java
+public Map<String, Object> authentication(Authentication authentication) {
+    return authentication.getPrincipal().getAttributes();
+}
+```
+In the provided code, after a successful Codeflow, I only received user information and not a token that could be used for subsequent requests by adding it to my header as Bearer. Initially, I thought I needed to decode the received information using JWT, but that turned out not to be the case. I later discovered the correct solution.
+
+
+### The Solution
+
+##### Security Configuration for OAuth2 Integration
+
+This snippet represents a security configuration using Spring Security to integrate OAuth2. It disables CSRF protection, configures OAuth2 login, and sets the default success URL to "/character/profile". The authorization endpoint is specified with a base URI of "/oauth2/authorization".
+
+```java
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http
+        .csrf(AbstractHttpConfigurer::disable)
+        .oauth2Login(oauth2login -> oauth2login
+            .defaultSuccessUrl("/character/profile")
+            .authorizationEndpoint(authorizationEndpointConfig -> authorizationEndpointConfig
+                .baseUri("/oauth2/authorization")));
+        return http.build();
+        }
+````
+
+
+##### Generating the Token
+
+This method is crucial for obtaining the access token from the authentication object, facilitating access to protected resources on behalf of the authenticated user. In OAuth2 authentication scenarios, commonly employed in web applications, this function plays a pivotal role. Below is the corresponding Java code:
+
+```java
+protected String getAccessToken(Authentication authentication) {
+
+    OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+    OAuth2AuthorizedClient authorizedClient = authorizedClientService
+        .loadAuthorizedClient(oauthToken.getAuthorizedClientRegistrationId(), oauthToken.getName());
+        
+    return authorizedClient.getAccessToken().getTokenValue();
+}
+````
+
+### Retrieving and Processing Data from Blizzard API
+
+After successfully obtaining the access token, I could finally send API requests to the Blizzard API. Upon inserting the required headers and parameters and receiving the initial data, I utilized the Jackson Library and ObjectMapper to extract the name and server of the character. Subsequently, I performed a duplicate check using ORM (Object-Relational Mapping) before rendering the extracted character information in the frontend with Thymeleaf. Additionally, using JavaScript, I stored the character in the database.
+
+This process involved the following steps:
+
+1. **Sending API Requests:**
+   - Utilized the acquired access token to authenticate API requests to the Blizzard API.
+
+2. **Data Extraction with Jackson and ObjectMapper:**
+   - Employed the Jackson Library and ObjectMapper to parse the received data and extract relevant information, such as the character's name and server.
+
+3. **Duplicate Check with ORM:**
+   - Implemented a duplicate check using the ORM functionality with the method:
+     ```java
+     Optional<WarcraftCharacter> findByNameAndServer(String name, String server);
+     ```
+     This method allowed me to implement a simple logic ensuring that if the character is already in the database, it should not be displayed.
+
+4. **Frontend Display with Thymeleaf:**
+   - Integrated Thymeleaf to render the extracted character information in the frontend.
+
+5. **Database Storage with JavaScript:**
+   - Leveraged JavaScript to store the character details in the database.
+
+These steps collectively allowed for the seamless integration of data retrieval, processing, and presentation within the web application, with the added benefit of preventing duplicate entries in the frontend based on a logical check.
