@@ -82,7 +82,7 @@ This process involved the following steps:
    - Employed the Jackson Library and ObjectMapper to parse the received data and extract relevant information, such as the character's name and server.
 
 3. **Duplicate Check with ORM:**
-   - Implemented a duplicate check using the ORM functionality with the method:
+   - Implemented a duplicate check using the ORM functionality in the warcraftCharacter repository with the method:
      ```java
      Optional<WarcraftCharacter> findByNameAndServer(String name, String server);
      ```
